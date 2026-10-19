@@ -1,0 +1,49 @@
+%YAML:1.0
+---
+
+h264: false
+person_center_ratio: 0.3
+show_input_image: true
+colorize_by_depth: false
+output_arange_vertical: true
+annotate_input_image: true
+max_range_m: 20.0
+nominal_baseline_m: 0.12
+erode_dialate_disparity: false
+dialate_erode_kernel_size: 3
+downsize_dialate_erode: true
+show_cpu: true
+show_fps: false
+show_hailo: true
+flip_visualization: false
+stats_font_scale: 1
+
+sgbm: true
+sgbm_min_disparity: 0
+sgbm_block_size: 5
+sgbm_p1: 512
+sgbm_p2: 2048
+sgbm_disp12_max_diff: 5
+sgbm_uniqueness_ratio: 5
+sgbm_speckle_window_size: 200
+sgbm_speckle_range: 2
+
+downsize_disparity: true
+downsize_disparity_height: 360
+downsize_disparity_width: 640
+num_disparities: 64
+
+bm_block_size: 7
+bm_uniqueness_ratio: 25
+
+isp_image_width: 1280
+isp_image_height: 480
+
+min_distance_m: 0.35
+max_distance_m: 20.0
+capture_width: 1280
+capture_height: 480
+pre_filter_cap: 5
+erode_dilate_disparity: false
+dilate_erode_kernel_size: 3
+publish_pointcloud: true

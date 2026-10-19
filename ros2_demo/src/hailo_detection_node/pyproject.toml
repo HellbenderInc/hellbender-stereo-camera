@@ -1,0 +1,89 @@
+###############################################################################
+# build system definition
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+###############################################################################
+# project config
+[project]
+name = "hailo_detection_node"
+version = "0.1.0"
+description = ''
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+dynamic = ["scripts"]
+keywords = []
+authors = [{ name = "Hellbender Inc", email = "support@hellbender.com" }]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+]
+dependencies = ["opencv-python>=4.0"]
+
+[project.optional-dependencies]
+ros = [
+  "rclpy>=0.14.0",
+  "sensor-msgs>=0.2.0",
+  "cv-bridge>=3.0",
+]
+
+###############################################################################
+# hatch build system additional config
+[tool.hatch.build.targets.sdist]
+exclude = ["/.github", "/.vscode"]
+
+[tool.hatch.envs.hatch-static-analysis]
+template = "hatch-test"
+dependencies = ["ruff>=0.14", "pyright>=1.1.406"]
+config-path = "none"
+skip-install = false
+
+[tool.hatch.envs.hatch-static-analysis.scripts]
+format-check = "ruff format{env:HATCH_FMT_ARGS:} --check --diff {args:.}"
+format-fix = "ruff format{env:HATCH_FMT_ARGS:} {args:.}"
+lint-check = ["ruff check{env:HATCH_FMT_ARGS:} {args:.}", "pyright {args:.}"]
+lint-fix = [
+  "ruff check{env:HATCH_FMT_ARGS:} --fix {args:.}",
+  "pyright {args:.}",
+]
+
+[tool.hatch.envs.hatch-test]
+randomize = true
+default-args = ["test"]
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.12", "3.11", "3.10"]
+
+[tool.hatch.envs.hatch-test.scripts]
+run = "pytest{env:HATCH_TEST_ARGS:} {args}"
+run-cov = "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}"
+cov-combine = "coverage combine"
+cov-report = """
+  coverage report &&
+  coverage report --show-missing --format=markdown > coverage.md &&
+  coverage html"""
+
+###############################################################################
+# coverage  config
+[tool.coverage.run]
+branch = true
+source_pkgs = ["hailo_detection_node", "test"]
+omit = ["hailo_detection_node/_version.py"]
+
+[tool.coverage.paths]
+hailo_detection_node = ["hailo_detection_node"]
+test = ["test"]
+
+[tool.coverage.report]
+exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
+
+###############################################################################
+# pytest config
+[tool.pytest.ini_options]
+testpaths = ["test"]

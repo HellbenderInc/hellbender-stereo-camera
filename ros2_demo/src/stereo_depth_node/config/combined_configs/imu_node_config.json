@@ -1,0 +1,8 @@
+{
+    "zenoh_key": "hb/stereo/imu/stream",
+    "zenoh_endpoints": [],
+    "zenoh_mode": "peer",
+    "frame_id": "imu_link",
+    "angular_velocity_covariance": [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "linear_acceleration_covariance": [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+}

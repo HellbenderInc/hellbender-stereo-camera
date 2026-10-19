@@ -1,0 +1,28 @@
+# Public ROS 2 stereo demo — run on target device.
+#
+# Build locally:  docker compose -f docker/docker-compose.yml build
+# Pull from CI:   docker compose -f docker/docker-compose.yml pull
+# Run:            docker compose -f docker/docker-compose.yml up
+services:
+  stereo:
+    image: hb-stereo-ros2-demo:${HB_STEREO_ROS2_DEMO_TAG:?set HB_STEREO_ROS2_DEMO_TAG to the loaded image tag or sha}
+    container_name: stereo_depth
+    privileged: true
+    network_mode: host
+    devices:
+      - /dev/video0
+      - /dev/hailo0
+    # Configs and the Hailo HEF network are baked into the image and installed
+    # to /etc and /networks on first start.
+    # The hb-camera-config directory is bind-mounted so postconfig.sh and any
+    # host-side edits persist across container rebuilds.
+    # hb_calib_params.json is per-camera calibration and must be provided by
+    # the host at /etc/hb_calib_params.json.
+    volumes:
+      - /etc/hb-camera-config:/etc/hb-camera-config
+      - /etc/hb_calib_params.json:/etc/hb_calib_params.json:ro
+    # To override the baked-in stereo config or networks, uncomment:
+    #   - /etc/stereo_config.yaml:/etc/stereo_config.yaml:ro
+    #   - /etc/networks:/networks
+    command: ros2 launch stereo_depth_node stereo_depth.launch.py
+    restart: unless-stopped

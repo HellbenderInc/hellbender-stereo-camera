@@ -1,0 +1,94 @@
+name: ros2_demo Docker CI
+run-name: ${{ github.event_name == 'pull_request' && 'PR' || 'CI' }} / ${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    tags: ["v*"]
+    paths:
+      - 'ros2_demo/**'
+      - '.github/workflows/docker.yml'
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+    branches: [main]
+    paths:
+      - 'ros2_demo/**'
+      - '.github/workflows/docker.yml'
+
+jobs:
+  docker:
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set archive variables
+        id: vars
+        run: |
+          image_name="hb-stereo-ros2-demo"
+
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            version="${GITHUB_REF_NAME}"
+          else
+            version="${GITHUB_SHA}"
+          fi
+
+          echo "image-name=${image_name}" >> "$GITHUB_OUTPUT"
+          echo "image-tag=${image_name}:${version}" >> "$GITHUB_OUTPUT"
+          echo "archive-name=${image_name}-${version}-linux-arm64.tar" >> "$GITHUB_OUTPUT"
+          echo "archive-path=${RUNNER_TEMP}/${image_name}-${version}-linux-arm64.tar" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
+      - name: Build ARM64 Docker image archive
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        with:
+          context: ./ros2_demo
+          file: ./ros2_demo/docker/Dockerfile
+          platforms: linux/arm64
+          target: runtime
+          tags: ${{ steps.vars.outputs.image-tag }}
+          labels: |
+            org.opencontainers.image.vendor=Hellbender Inc
+            org.opencontainers.image.description=ROS 2 Stereo Depth Demo
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          outputs: type=docker,dest=${{ steps.vars.outputs.archive-path }}
+          cache-from: type=gha,scope=hb-stereo-ros2-demo-linux-arm64
+          cache-to: type=gha,scope=hb-stereo-ros2-demo-linux-arm64,mode=max
+          build-args: |
+            ROS_DISTRO=humble
+
+      - name: Compress Docker archive
+        run: gzip -f "${{ steps.vars.outputs.archive-path }}"
+
+      - name: Upload build artifact
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ steps.vars.outputs.archive-name }}
+          path: ${{ steps.vars.outputs.archive-path }}.gz
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Publish release asset
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          archive_path="${{ steps.vars.outputs.archive-path }}.gz"
+          tag="${GITHUB_REF_NAME}"
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "$archive_path" --clobber
+          else
+            gh release create "$tag" "$archive_path" --generate-notes
+          fi

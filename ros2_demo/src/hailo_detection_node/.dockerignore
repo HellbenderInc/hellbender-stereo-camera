@@ -1,0 +1,21 @@
+# Prevent large local artifacts and caches from entering the build context
+hail.tar
+*.tar
+
+# Python caches and test artifacts
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# VCS / editor metadata
+.git/
+.vscode/
+
+# Local envs
+.venv/
+venv/
+
+# Build outputs
+dist/
+build/
+*.egg-info/

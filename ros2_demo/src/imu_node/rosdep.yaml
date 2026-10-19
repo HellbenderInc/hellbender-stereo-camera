@@ -1,0 +1,16 @@
+# Local rosdep keys for dependencies not present in the official rosdep index.
+#
+# Register this file before running rosdep install:
+#
+#   rosdep update
+#   rosdep install --from-paths src --rosdep-sources-file rosdep.yaml --ignore-src -r -y
+#
+# Alternatively, add a sources.list entry so rosdep picks it up automatically:
+#   echo "yaml file://$(pwd)/rosdep.yaml" > /etc/ros/rosdep/sources.list.d/50-imu-node.list
+#   rosdep update
+
+python3-eclipse-zenoh:
+  ubuntu:
+    pip:
+      packages:
+        - eclipse-zenoh>=1.0.0

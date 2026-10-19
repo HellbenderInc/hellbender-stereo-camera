@@ -1,0 +1,17 @@
+{
+    "model_path": "/networks",
+    "model_name": "yolox_s_leaky",
+    "nms_output_node": "yolox_nms_postprocess",
+    "detection_class_index": 0,
+    "person_center_ratio": 0.3,
+    "min_depth_m": 0.3,
+    "max_depth_m": 10.0,
+    "box_color_bgr": [
+        255,
+        255,
+        255
+    ],
+    "box_thickness": 4,
+    "text_scale": 1.0,
+    "text_thickness": 2
+}
