@@ -1,7 +1,6 @@
 # ros2_demo — ROS 2 Stereo Camera Demo
 
-A public, buildable demo of the Hellbender stereo camera ROS 2 stack. The
-container bundles three nodes:
+A public, buildable demo of the Hellbender stereo camera ROS 2 stack. See [this page](https://github.com/HellbenderInc/hellbender-stereo-camera/releases) for the latest docker image and installation instructions. The container bundles three nodes:
 
 - `stereo_depth_node` (C++): Stereo capture, SGBM disparity, and rectified stream publication.
 - `hailo_detection_node` (Python): Person detection on Hailo-8 over the color stream.
